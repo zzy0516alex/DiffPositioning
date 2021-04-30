@@ -17,7 +17,7 @@ import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.tan;
 
-public class SinglePositioning {
+public class DiffPositioning {
 
     private static final double C_light=299792458.458;
     private static final double  PI=3.14159265359;
@@ -229,7 +229,7 @@ public class SinglePositioning {
     private static Context context;
 
     public static void setContext(Context context) {
-        SinglePositioning.context = context;
+        DiffPositioning.context = context;
     }
 
     public static double[] Position_Calculator(ArrayList<NavigationMessageRaw> navigationMessageRaws, ArrayList<SatSentMsg>satSentMsgs, double gpstime, int sat_num,boolean use_PRC)
