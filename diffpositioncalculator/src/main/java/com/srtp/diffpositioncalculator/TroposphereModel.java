@@ -1,12 +1,19 @@
-package com.srtp.diffpositioncalculator.GnssCalculator;
+package com.srtp.diffpositioncalculator;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.exp;
 import static java.lang.Math.pow;
 
-public class stratosphere {
-        static public double tropmodel(double []pos, double azel, double humi)
+public class TroposphereModel {
+    /**
+     * 对流层校正
+     * @param pos
+     * @param azel
+     * @param humi
+     * @return
+     */
+        static public double tropomodel(double []pos, double azel, double humi)
         {
 	        final double temp0 = 15.0; /* temparature at sea level */
             double hgt, pres, temp, e, z, trph, trpw;

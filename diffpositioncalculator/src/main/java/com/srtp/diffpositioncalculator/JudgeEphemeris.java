@@ -1,4 +1,4 @@
-package com.srtp.diffpositioncalculator.GnssCalculator;
+package com.srtp.diffpositioncalculator;
 
 public class JudgeEphemeris {
     static  int[] dinmth= { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -52,7 +52,6 @@ public class JudgeEphemeris {
         weekno = ttlday / 7;                                                 //整周数
         dayofw = ttlday - 7 * weekno;                                        //不足一周的天数
         gpstime = epoch.hour * 3600 + epoch.minute * 60 + epoch.second + dayofw * 86400;       //距离周日零时的秒数
-
         return gpstime;
     }
 }

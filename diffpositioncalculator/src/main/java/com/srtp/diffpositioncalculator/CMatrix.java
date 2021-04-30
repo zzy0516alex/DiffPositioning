@@ -1,4 +1,8 @@
-package com.srtp.diffpositioncalculator.GnssCalculator;
+package com.srtp.diffpositioncalculator;
+
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CMatrix {
     public double[][]p;
@@ -58,9 +62,11 @@ public class CMatrix {
     }
     public void ones(int n) {//变为全一矩阵
         if (!(this.Col == this.Row && this.Row > 1)) {
-            throw new AssertionError("Assertion failed");
+            throw new IllegalArgumentException("矩阵行列必须相等");
         }
         p = new double[n][n];
+        Col=n;
+        Row=n;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 p[i][j] = 1;
@@ -179,7 +185,8 @@ public class CMatrix {
                     result *= temple.p[i][j];
             }
         }
-        return result;
+        BigDecimal r=new BigDecimal(Double.toString(result));
+        return r.setScale(8, RoundingMode.HALF_EVEN).doubleValue();
     }
 
     boolean IsPtv()//判断方阵是否可以求逆
@@ -338,7 +345,8 @@ public class CMatrix {
             for(j=0;j<m_nNumColumns;j++)
             {
                 l=i*m_nNumColumns+j;
-                temp.p[i][j]=m_pData[l];
+                BigDecimal r=new BigDecimal(Double.toString(m_pData[l]));
+                temp.p[i][j]=r.setScale(8,BigDecimal.ROUND_HALF_EVEN).doubleValue();
             }
         }
         return temp;

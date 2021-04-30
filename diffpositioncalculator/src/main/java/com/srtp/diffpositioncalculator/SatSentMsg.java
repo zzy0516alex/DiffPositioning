@@ -1,13 +1,13 @@
-package com.srtp.diffpositioncalculator.GnssCalculator;
+package com.srtp.diffpositioncalculator;
 
 import android.location.GnssClock;
 import android.location.GnssMeasurement;
 import android.location.GnssStatus;
-import android.util.Log;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
-public class GNSSData {
+public class SatSentMsg {
     private GnssMeasurement gnssMeasurement;
     private GnssClock gnssClock;
     private double Pseudorange;//伪距
@@ -19,9 +19,17 @@ public class GNSSData {
     private static final double WEEK_SEC = 604800;//周化秒
     private static final double DAY_SEC=86400;//日化秒
 
-    public GNSSData(GnssMeasurement gnssMeasurement, GnssClock gnssClock) {
+    public SatSentMsg(GnssMeasurement gnssMeasurement, GnssClock gnssClock) {
         this.gnssMeasurement = gnssMeasurement;
         this.gnssClock = gnssClock;
+    }
+
+    public SatSentMsg(int PRN, int SVType) {
+        this.PRN = PRN;
+        this.SVType = SVType;
+    }
+
+    public SatSentMsg() {
     }
 
     public double getTRxNanos() {
@@ -38,7 +46,6 @@ public class GNSSData {
 
     public double getPseudorange() {
         double tTx=gnssMeasurement.getReceivedSvTimeNanos()+gnssMeasurement.getTimeOffsetNanos();
-        Log.d("receive time","tTx= "+tTx);
         BigDecimal tRx=new BigDecimal("0");
 
         int SvType=gnssMeasurement.getConstellationType();
@@ -58,26 +65,24 @@ public class GNSSData {
             default:tRx=BigDecimal.valueOf(-1);//未定义的卫星类型
         }
 
-        Log.d("receive time","tRx= "+tRx);
         BigDecimal decimal_deltaTime=tRx.subtract(BigDecimal.valueOf(tTx));
         Pseudorange=decimal_deltaTime.abs().multiply(BigDecimal.valueOf(c)).doubleValue();
-        Log.d("receive time","pseu= "+Pseudorange);
         if (Pseudorange<1e8 && Pseudorange>1e6)return Pseudorange;//单位：米
         else return -1;
     }
 
     public int getPRN() {
-        PRN=gnssMeasurement.getSvid();
+        if (gnssMeasurement!=null)PRN=gnssMeasurement.getSvid();
         return PRN;
     }
 
     public int getSVType() {
-        SVType=gnssMeasurement.getConstellationType();
+        if (gnssMeasurement!=null)SVType=gnssMeasurement.getConstellationType();
         return SVType;
     }
 
     public static double getGPSTime(GnssClock gnssClock) {
-        BigDecimal decimal_FullTimeNanos=BigDecimal.valueOf(GNSSData.getTRxNanos(gnssClock));
+        BigDecimal decimal_FullTimeNanos=BigDecimal.valueOf(SatSentMsg.getTRxNanos(gnssClock));
         BigDecimal decimal_weekNanos=BigDecimal.valueOf(WEEK_SEC*1e9);
         return Math.abs(decimal_FullTimeNanos.remainder(decimal_weekNanos).divide(BigDecimal.valueOf(1e9)).doubleValue());//获取GPStime
     }
@@ -95,6 +100,22 @@ public class GNSSData {
     public double getDayTimeNanos() {
         double weekNumber=Math.floor((Math.abs(gnssClock.getFullBiasNanos())*1e-9)/DAY_SEC);
         return weekNumber*(DAY_SEC*1e9);
+    }
+
+    public boolean inList(ArrayList<SatSentMsg> data){
+        for (SatSentMsg s:data) {
+            if (this.equals(s))return true;
+        }
+        return false;
+    }
+    public boolean equals(SatSentMsg data){
+        return this.getSVType()==data.getSVType() && this.getPRN()==data.getPRN();
+    }
+    public boolean equals(NavigationMessageRaw data){
+        SatSentMsg Nav2Sat;
+        if (data.PRN<100)Nav2Sat=new SatSentMsg(data.PRN, GnssStatus.CONSTELLATION_GPS);
+        else Nav2Sat = new SatSentMsg(data.PRN-100,GnssStatus.CONSTELLATION_BEIDOU);
+        return equals(Nav2Sat);
     }
 
 }
